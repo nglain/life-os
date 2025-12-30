@@ -58,9 +58,8 @@ export function TabChips({ node, activePanel, onPanelChange }: TabChipsProps) {
     tabs.push({ id: 'subtopics', label: 'Подтемы', icon: '📂', count: subtopics.length });
   }
 
-  // Show topics tab - always show if node can have children
-  const canHaveChildren = node.type === 'theme' || node.type === 'subtopic';
-  if (topics.length > 0 || canHaveChildren) {
+  // Show topics tab only if there are topics
+  if (topics.length > 0) {
     tabs.push({ id: 'topics', label: 'Топики', icon: '💬', count: topics.length });
   }
 
