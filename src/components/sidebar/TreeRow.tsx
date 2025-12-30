@@ -18,6 +18,8 @@ export function TreeRow({ node, level, onAddChild }: TreeRowProps) {
   const hasChildren = node.type !== 'topic' && node.children && node.children.length > 0;
 
   const handleClick = () => {
+    // Если уже выбрана - не перевыбираем
+    if (isSelected) return;
     selectNode(node.id);
   };
 

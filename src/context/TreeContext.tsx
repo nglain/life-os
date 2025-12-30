@@ -245,6 +245,30 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
 
       console.log('Flat nodes from API:', flatNodes);
 
+      // If tree is empty, create default "Общая тема"
+      if (flatNodes.length === 0) {
+        const now = new Date().toISOString();
+        const defaultTheme = {
+          id: 'default-theme',
+          type: 'theme' as const,
+          label: 'Общая тема',
+          icon: '💬',
+          parentId: null,
+          dateCreated: now,
+          dateModified: now,
+        };
+        // Save to backend
+        await api.createNode(defaultTheme);
+        flatNodes = [{
+          ...defaultTheme,
+          children: [],
+          hasMessages: false,
+          hasSummary: false,
+          hasArtifacts: false,
+          hasPrompt: false,
+        }];
+      }
+
       // Build nested tree from flat nodes
       const treeData = buildTreeFromFlat(flatNodes);
       console.log('Built tree:', treeData);
@@ -257,6 +281,17 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
         expanded[node.id] = true;
       });
       dispatch({ type: 'SET_EXPANDED', payload: expanded });
+
+      // Auto-select: last active or "Общая тема"
+      const lastNodeId = localStorage.getItem('lifeos-last-node');
+      const lastNode = lastNodeId ? findNodeById(treeData, lastNodeId) : null;
+      const defaultNode = findNodeById(treeData, 'default-theme') || treeData[0];
+
+      if (lastNode) {
+        dispatch({ type: 'SELECT_NODE', payload: lastNode.id });
+      } else if (defaultNode) {
+        dispatch({ type: 'SELECT_NODE', payload: defaultNode.id });
+      }
     } else {
       dispatch({ type: 'SET_ERROR', payload: result.error || 'Failed to load tree' });
     }
@@ -267,6 +302,8 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SELECT_NODE', payload: nodeId });
     if (nodeId) {
       socketEmit.selectNode(nodeId);
+      // Save last active node
+      localStorage.setItem('lifeos-last-node', nodeId);
     }
   }, []);
 
