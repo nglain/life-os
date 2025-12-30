@@ -188,6 +188,9 @@ body {
   padding: 7px 12px;
   cursor: pointer;
   transition: background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 .tree-row:hover {
