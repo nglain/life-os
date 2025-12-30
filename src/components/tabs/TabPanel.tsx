@@ -16,8 +16,9 @@ export function TabPanel({ node, activePanel, onSelectNode, onCreateTopic, onCre
   // Collect data
   const artifacts: { name: string; source: string; date: string }[] = [];
   const summaries: { label: string; summary: string; date: string; id: string }[] = [];
-  const subtopics = node.children?.filter(c => c.children && c.children.length > 0) || [];
-  const topics = node.children?.filter(c => !c.children || c.children.length === 0) || [];
+  // Separate children by their actual type
+  const subtopics = node.children?.filter(c => c.type === 'subtopic') || [];
+  const topics = node.children?.filter(c => c.type === 'topic') || [];
 
   const collect = (items: TreeNode[]) => {
     items.forEach(item => {

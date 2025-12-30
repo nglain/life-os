@@ -80,7 +80,7 @@ export function Sidebar({ onCreateNode, isOpen, onClose: _onClose }: SidebarProp
           <div className="user-avatar">
             {user?.email?.[0]?.toUpperCase() || 'U'}
           </div>
-          <span className="user-email">{user?.email || 'User'} <span style={{opacity: 0.4, fontSize: '10px'}}>v1.4</span></span>
+          <span className="user-email">{user?.email || 'User'} <span style={{opacity: 0.4, fontSize: '10px'}}>v1.5</span></span>
         </div>
         <button className="logout-btn" onClick={signOut} title="Выйти">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

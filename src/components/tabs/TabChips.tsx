@@ -21,9 +21,9 @@ export function TabChips({ node, activePanel, onPanelChange }: TabChipsProps) {
   const artifacts: { name: string; source: string; date: string }[] = [];
   const summaries: { label: string; summary: string; date: string; id: string }[] = [];
 
-  // Separate children into subtopics (with children) and topics (leaf nodes)
-  const subtopics = node.children?.filter(c => c.children && c.children.length > 0) || [];
-  const topics = node.children?.filter(c => !c.children || c.children.length === 0) || [];
+  // Separate children by their actual type
+  const subtopics = node.children?.filter(c => c.type === 'subtopic') || [];
+  const topics = node.children?.filter(c => c.type === 'topic') || [];
 
   // Collect artifacts and summaries recursively
   const collect = (items: TreeNode[]) => {
