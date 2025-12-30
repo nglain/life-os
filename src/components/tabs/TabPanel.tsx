@@ -60,9 +60,11 @@ export function TabPanel({ node, activePanel, onSelectNode, onCreateTopic, onCre
         {/* Subtopics */}
         {activePanel === 'subtopics' && (
           <>
-            <div className="tab-panel-item add" onClick={onCreateSubtopic}>
-              + Подтема
-            </div>
+            {node.type === 'theme' && (
+              <div className="tab-panel-item add" onClick={onCreateSubtopic}>
+                + Подтема
+              </div>
+            )}
             {subtopics.map(child => (
               <div
                 key={child.id}
@@ -82,9 +84,11 @@ export function TabPanel({ node, activePanel, onSelectNode, onCreateTopic, onCre
         {/* Topics */}
         {activePanel === 'topics' && (
           <>
-            <div className="tab-panel-item add" onClick={onCreateTopic}>
-              + Топик
-            </div>
+            {node.type !== 'topic' && (
+              <div className="tab-panel-item add" onClick={onCreateTopic}>
+                + Топик
+              </div>
+            )}
             {topics.sort((a, b) => sortByDate(
               { date: a.dateModified },
               { date: b.dateModified }
