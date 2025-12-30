@@ -190,12 +190,18 @@ body {
   transition: background 0.1s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  user-select: none;
-  border-left: 2px solid transparent;
 }
 
-.tree-row:hover {
-  background: rgba(255,255,255,0.04);
+/* Only apply hover background on devices with mouse */
+@media (hover: hover) and (pointer: fine) {
+  .tree-row:hover {
+    background: rgba(255,255,255,0.04);
+  }
+}
+
+/* Active state for touch devices */
+.tree-row:active {
+  background: rgba(255,255,255,0.08);
 }
 
 .tree-row--selected {
@@ -265,8 +271,11 @@ body {
   display: none;
 }
 
-.tree-row:hover .tree-actions {
-  display: flex;
+/* Only show actions on hover for devices with mouse/trackpad */
+@media (hover: hover) and (pointer: fine) {
+  .tree-row:hover .tree-actions {
+    display: flex;
+  }
 }
 
 .tree-action-btn {

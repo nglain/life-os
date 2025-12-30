@@ -19,10 +19,6 @@ export function TreeRow({ node, level, onAddChild }: TreeRowProps) {
 
   const handleClick = () => {
     selectNode(node.id);
-    // Auto-expand nodes with children when clicking
-    if (hasChildren && !isExpanded) {
-      toggleExpand(node.id);
-    }
   };
 
   const handleToggle = (e: React.MouseEvent) => {
