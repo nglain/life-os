@@ -1,5 +1,3 @@
-import { Capacitor } from '@capacitor/core';
-
 export interface PickedFile {
   name: string;
   type: string;
@@ -8,47 +6,11 @@ export interface PickedFile {
 }
 
 /**
- * Pick a file using native picker on iOS/Android or HTML input on web
+ * Pick a file - always uses web approach for now
+ * (Capacitor file picker requires native plugin)
  */
 export async function pickFile(): Promise<PickedFile | null> {
-  if (Capacitor.isNativePlatform()) {
-    return pickFileNative();
-  } else {
-    return pickFileWeb();
-  }
-}
-
-/**
- * Native file picker using Capacitor plugin
- */
-async function pickFileNative(): Promise<PickedFile | null> {
-  try {
-    // Dynamic import to avoid issues on web
-    const { FilePicker } = await import('@capawesome/capacitor-file-picker');
-
-    const result = await FilePicker.pickFiles({
-      multiple: false,
-      readData: true,
-    });
-
-    if (!result.files || result.files.length === 0) {
-      return null;
-    }
-
-    const file = result.files[0];
-    console.log('[FilePicker] Native file picked:', file.name);
-
-    return {
-      name: file.name,
-      type: file.mimeType || 'application/octet-stream',
-      size: file.size || 0,
-      data: file.data || '',
-    };
-  } catch (error) {
-    console.error('[FilePicker] Native picker error:', error);
-    // Fall back to web picker if native fails
-    return pickFileWeb();
-  }
+  return pickFileWeb();
 }
 
 /**
