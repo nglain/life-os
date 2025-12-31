@@ -24,13 +24,20 @@ export function ChatInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileClick = () => {
+    console.log('[File] Button clicked, triggering file input');
     fileInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[File] File selected:', e.target.files);
     const file = e.target.files?.[0];
-    if (file && onFileSelect) {
-      onFileSelect(file);
+    if (file) {
+      console.log('[File] Processing file:', file.name, file.type, file.size);
+      if (onFileSelect) {
+        onFileSelect(file);
+      } else {
+        console.warn('[File] No onFileSelect handler provided');
+      }
     }
     // Reset input
     if (fileInputRef.current) {
@@ -75,7 +82,7 @@ export function ChatInput({
         />
 
         {/* Attachment button */}
-        <button className="chat-input-btn" onClick={handleFileClick} title="Прикрепить файл">
+        <button type="button" className="chat-input-btn" onClick={handleFileClick} title="Прикрепить файл">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
           </svg>
@@ -96,6 +103,7 @@ export function ChatInput({
         {/* Voice button */}
         {onVoice && (
           <button
+            type="button"
             className={`chat-input-btn ${isVoiceActive ? 'voice-active' : ''} ${isVoiceConnecting ? 'voice-connecting' : ''}`}
             onClick={onVoice}
             title={isVoiceActive ? 'Остановить голос' : 'Голосовой режим'}
@@ -117,6 +125,7 @@ export function ChatInput({
 
         {/* Send button */}
         <button
+          type="button"
           className="chat-send-btn"
           onClick={handleSubmit}
           disabled={!text.trim() || disabled}
