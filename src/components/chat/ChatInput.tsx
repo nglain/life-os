@@ -21,7 +21,6 @@ export function ChatInput({
 }: ChatInputProps) {
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputId = useRef(`file-input-${Date.now()}`).current;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log('[File] File selected:', e.target.files);
@@ -65,19 +64,20 @@ export function ChatInput({
   return (
     <div className="chat-input-container">
       <div className="chat-input-wrapper">
-        {/* File input with label (works on iOS) */}
-        <input
-          id={fileInputId}
-          type="file"
-          onChange={handleFileChange}
-          className="file-input-hidden"
-          accept="image/*,.pdf,.doc,.docx,.txt"
-        />
-        <label htmlFor={fileInputId} className="chat-input-btn" title="Прикрепить файл">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-          </svg>
-        </label>
+        {/* File input - overlay approach for iOS */}
+        <div className="file-input-wrapper">
+          <input
+            type="file"
+            onChange={handleFileChange}
+            className="file-input-overlay"
+            accept="image/*,.pdf,.doc,.docx,.txt"
+          />
+          <div className="chat-input-btn file-btn-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+          </div>
+        </div>
 
         {/* Input area */}
         <textarea
