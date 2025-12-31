@@ -3,6 +3,10 @@ import type { Message, TreeNode } from '@/types/tree';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useTree } from '@/context/TreeContext';
+import { useVoice } from '@/context/VoiceContext';
+import { supabase } from '@/utils/supabase';
+
+const API_URL = import.meta.env.VITE_LAPP_API_URL || 'http://localhost:3010';
 
 interface ChatAreaProps {
   node: TreeNode;
@@ -10,6 +14,7 @@ interface ChatAreaProps {
 
 export function ChatArea({ node }: ChatAreaProps) {
   const { saveMessages } = useTree();
+  const { isConnected, isConnecting, startVoice, stopVoice } = useVoice();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isSending, setIsSending] = useState(false);
 
@@ -58,9 +63,82 @@ export function ChatArea({ node }: ChatAreaProps) {
     }
   };
 
-  const handleVoice = () => {
-    // TODO: Implement voice input
-    console.log('Voice input not yet implemented');
+  const handleVoice = async () => {
+    try {
+      if (isConnected) {
+        await stopVoice();
+      } else {
+        // Create context from recent messages
+        const context = messages.slice(-5).map(m =>
+          `${m.type === 'user' ? 'User' : 'AI'}: ${m.text}`
+        ).join('\n');
+
+        await startVoice(context || `Тема: ${node.label}`);
+      }
+    } catch (error) {
+      console.error('Voice error:', error);
+    }
+  };
+
+  const handleFileSelect = async (file: File) => {
+    try {
+      setIsSending(true);
+
+      // Get auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('Not authenticated');
+      }
+
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]); // Remove data:...;base64, prefix
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Upload to S3 via backend
+      const response = await fetch(`${API_URL}/api/upload-to-s3`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileData: base64,
+          contentType: file.type,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload file');
+      }
+
+      const data = await response.json();
+
+      // Create message with file
+      const fileMessage: Message = {
+        id: `msg-${Date.now()}`,
+        type: 'user',
+        text: `[Файл: ${file.name}](${data.url})`,
+        timestamp: new Date().toISOString(),
+      };
+
+      const updatedMessages = [...messages, fileMessage];
+      await saveMessages(node.id, updatedMessages);
+
+      console.log('[File] Uploaded:', data.url);
+    } catch (error) {
+      console.error('[File] Upload error:', error);
+      alert('Ошибка загрузки файла');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -100,8 +178,11 @@ export function ChatArea({ node }: ChatAreaProps) {
       <ChatInput
         onSend={handleSend}
         onVoice={handleVoice}
+        onFileSelect={handleFileSelect}
         disabled={isSending}
-        placeholder={`Сообщение в "${node.label}"...`}
+        placeholder="Сообщение..."
+        isVoiceActive={isConnected}
+        isVoiceConnecting={isConnecting}
       />
     </div>
   );

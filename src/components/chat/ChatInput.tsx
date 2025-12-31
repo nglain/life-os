@@ -3,18 +3,40 @@ import React, { useState, useRef, useEffect } from 'react';
 interface ChatInputProps {
   onSend: (text: string) => void;
   onVoice?: () => void;
+  onFileSelect?: (file: File) => void;
   disabled?: boolean;
   placeholder?: string;
+  isVoiceActive?: boolean;
+  isVoiceConnecting?: boolean;
 }
 
 export function ChatInput({
   onSend,
   onVoice,
+  onFileSelect,
   disabled = false,
   placeholder = 'Напишите сообщение...',
+  isVoiceActive = false,
+  isVoiceConnecting = false,
 }: ChatInputProps) {
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onFileSelect) {
+      onFileSelect(file);
+    }
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   // Auto-resize textarea
   useEffect(() => {
@@ -43,8 +65,17 @@ export function ChatInput({
   return (
     <div className="chat-input-container">
       <div className="chat-input-wrapper">
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+          accept="image/*,.pdf,.doc,.docx,.txt"
+        />
+
         {/* Attachment button */}
-        <button className="chat-input-btn" title="Прикрепить файл">
+        <button className="chat-input-btn" onClick={handleFileClick} title="Прикрепить файл">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
           </svg>
@@ -64,10 +95,23 @@ export function ChatInput({
 
         {/* Voice button */}
         {onVoice && (
-          <button className="chat-input-btn" onClick={onVoice} title="Голосовой ввод">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-            </svg>
+          <button
+            className={`chat-input-btn ${isVoiceActive ? 'voice-active' : ''} ${isVoiceConnecting ? 'voice-connecting' : ''}`}
+            onClick={onVoice}
+            title={isVoiceActive ? 'Остановить голос' : 'Голосовой режим'}
+            disabled={isVoiceConnecting}
+          >
+            {isVoiceConnecting ? (
+              <div className="voice-spinner" />
+            ) : isVoiceActive ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="2" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+            )}
           </button>
         )}
 

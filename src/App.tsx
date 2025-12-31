@@ -1,5 +1,6 @@
 import { AuthProvider, useAuthContext } from '@/context/AuthContext';
 import { TreeProvider } from '@/context/TreeContext';
+import { VoiceProvider } from '@/context/VoiceContext';
 import { LoginPage } from '@/pages/LoginPage';
 import { HomePage } from '@/pages/HomePage';
 
@@ -24,7 +25,9 @@ function AppContent() {
 
   return (
     <TreeProvider>
-      <HomePage />
+      <VoiceProvider>
+        <HomePage />
+      </VoiceProvider>
     </TreeProvider>
   );
 }
