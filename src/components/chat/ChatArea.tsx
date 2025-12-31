@@ -5,6 +5,7 @@ import { ChatInput } from './ChatInput';
 import { useTree } from '@/context/TreeContext';
 import { useVoice } from '@/context/VoiceContext';
 import { supabase } from '@/utils/supabase';
+import type { PickedFile } from '@/utils/filePicker';
 
 const API_URL = import.meta.env.VITE_LAPP_API_URL || 'http://localhost:3010';
 
@@ -80,9 +81,10 @@ export function ChatArea({ node }: ChatAreaProps) {
     }
   };
 
-  const handleFileSelect = async (file: File) => {
+  const handleFileSelect = async (file: PickedFile) => {
     try {
       setIsSending(true);
+      console.log('[File] Uploading:', file.name, file.size, 'bytes');
 
       // Get auth token
       const { data: { session } } = await supabase.auth.getSession();
@@ -90,18 +92,7 @@ export function ChatArea({ node }: ChatAreaProps) {
         throw new Error('Not authenticated');
       }
 
-      // Convert file to base64
-      const reader = new FileReader();
-      const base64 = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => {
-          const result = reader.result as string;
-          resolve(result.split(',')[1]); // Remove data:...;base64, prefix
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
-      // Upload to S3 via backend
+      // Upload to S3 via backend (file.data is already base64)
       const response = await fetch(`${API_URL}/api/upload-to-s3`, {
         method: 'POST',
         headers: {
@@ -110,7 +101,7 @@ export function ChatArea({ node }: ChatAreaProps) {
         },
         body: JSON.stringify({
           fileName: file.name,
-          fileData: base64,
+          fileData: file.data,
           contentType: file.type,
         }),
       });

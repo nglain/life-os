@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { pickFile, PickedFile } from '@/utils/filePicker';
 
 interface ChatInputProps {
   onSend: (text: string) => void;
   onVoice?: () => void;
-  onFileSelect?: (file: File) => void;
+  onFileSelect?: (file: PickedFile) => void;
   disabled?: boolean;
   placeholder?: string;
   isVoiceActive?: boolean;
@@ -20,21 +21,30 @@ export function ChatInput({
   isVoiceConnecting = false,
 }: ChatInputProps) {
   const [text, setText] = useState('');
+  const [isPickingFile, setIsPickingFile] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('[File] File selected:', e.target.files);
-    const file = e.target.files?.[0];
-    if (file) {
-      console.log('[File] Processing file:', file.name, file.type, file.size);
-      if (onFileSelect) {
-        onFileSelect(file);
+  const handleFilePick = async () => {
+    if (isPickingFile) return;
+
+    console.log('[File] Opening file picker...');
+    setIsPickingFile(true);
+
+    try {
+      const file = await pickFile();
+      if (file) {
+        console.log('[File] File picked:', file.name, file.type, file.size);
+        if (onFileSelect) {
+          onFileSelect(file);
+        }
       } else {
-        console.warn('[File] No onFileSelect handler provided');
+        console.log('[File] No file selected');
       }
+    } catch (error) {
+      console.error('[File] Error picking file:', error);
+    } finally {
+      setIsPickingFile(false);
     }
-    // Reset input
-    e.target.value = '';
   };
 
   // Auto-resize textarea
@@ -64,20 +74,22 @@ export function ChatInput({
   return (
     <div className="chat-input-container">
       <div className="chat-input-wrapper">
-        {/* File input - overlay approach for iOS */}
-        <div className="file-input-wrapper">
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="file-input-overlay"
-            accept="image/*,.pdf,.doc,.docx,.txt"
-          />
-          <div className="chat-input-btn file-btn-icon">
+        {/* File picker button */}
+        <button
+          type="button"
+          className={`chat-input-btn ${isPickingFile ? 'opacity-50' : ''}`}
+          onClick={handleFilePick}
+          disabled={isPickingFile || disabled}
+          title="Прикрепить файл"
+        >
+          {isPickingFile ? (
+            <div className="voice-spinner" />
+          ) : (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
             </svg>
-          </div>
-        </div>
+          )}
+        </button>
 
         {/* Input area */}
         <textarea

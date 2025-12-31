@@ -711,36 +711,6 @@ body {
   color: rgba(255,255,255,0.3);
 }
 
-/* File input wrapper - overlay approach for iOS */
-.file-input-wrapper {
-  position: relative;
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-}
-
-.file-input-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 10;
-  font-size: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.file-btn-icon {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
 .chat-input-btn {
   width: 34px;
   height: 34px;
