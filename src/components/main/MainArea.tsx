@@ -10,8 +10,7 @@ export function MainArea() {
   const { getSelectedNode, selectNode } = useTree();
   const [activePanel, setActivePanel] = useState<TabId>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [showCreateTopic, setShowCreateTopic] = useState(false);
-  const [showCreateSubtopic, setShowCreateSubtopic] = useState(false);
+  const [showCreateChild, setShowCreateChild] = useState(false);
 
   const selectedNode = getSelectedNode();
 
@@ -30,26 +29,6 @@ export function MainArea() {
 
   return (
     <main className="main-area">
-      {/* Header with node info */}
-      <header className="main-header">
-        <div className="main-title">
-          <h2>
-            <span className="main-header-icon">{selectedNode.icon}</span>
-            {selectedNode.label}
-          </h2>
-          {selectedNode.type && (
-            <p className="breadcrumb">{selectedNode.type}</p>
-          )}
-        </div>
-        <button
-          className="settings-btn"
-          onClick={() => setShowSettings(true)}
-          title="Настройки"
-        >
-          ⚙️
-        </button>
-      </header>
-
       {/* Contextual tabs */}
       <TabChips
         node={selectedNode}
@@ -62,8 +41,7 @@ export function MainArea() {
         node={selectedNode}
         activePanel={activePanel}
         onSelectNode={selectNode}
-        onCreateTopic={() => setShowCreateTopic(true)}
-        onCreateSubtopic={() => setShowCreateSubtopic(true)}
+        onCreateChild={() => setShowCreateChild(true)}
       />
 
       {/* Chat area - always visible */}
@@ -79,23 +57,13 @@ export function MainArea() {
         />
       )}
 
-      {/* Create topic modal */}
-      {showCreateTopic && (
+      {/* Create child node modal */}
+      {showCreateChild && (
         <CreateNodeModal
-          isOpen={showCreateTopic}
-          onClose={() => setShowCreateTopic(false)}
+          isOpen={showCreateChild}
+          onClose={() => setShowCreateChild(false)}
           parentId={selectedNode.id}
-          defaultType="topic"
-        />
-      )}
-
-      {/* Create subtopic modal */}
-      {showCreateSubtopic && (
-        <CreateNodeModal
-          isOpen={showCreateSubtopic}
-          onClose={() => setShowCreateSubtopic(false)}
-          parentId={selectedNode.id}
-          defaultType="subtopic"
+          parentType={selectedNode.type || 'theme'}
         />
       )}
     </main>

@@ -6,16 +6,16 @@ import { Logo } from '@/components/Logo';
 import { CreateNodeModal } from '@/components/modals/CreateNodeModal';
 
 interface SidebarProps {
-  onCreateNode?: () => void;
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-export function Sidebar({ onCreateNode, isOpen, onClose: _onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { loadTree } = useTree();
   const { user, signOut } = useAuthContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const [addChildParentId, setAddChildParentId] = useState<string | null>(null);
+  const [addChildData, setAddChildData] = useState<{ parentId: string; parentType: string } | null>(null);
+  const [showRootCreate, setShowRootCreate] = useState(false);
 
   const handleRefresh = async () => {
     await loadTree();
@@ -60,17 +60,17 @@ export function Sidebar({ onCreateNode, isOpen, onClose: _onClose }: SidebarProp
       <div className="sidebar-tree">
         <TreeView
           searchQuery={searchQuery}
-          onAddChild={(parentId) => setAddChildParentId(parentId)}
+          onAddChild={(parentId, parentType) => setAddChildData({ parentId, parentType })}
         />
       </div>
 
-      {/* Add theme button */}
+      {/* Create button */}
       <div className="sidebar-footer">
-        <button className="add-theme-btn" onClick={onCreateNode}>
+        <button className="add-theme-btn" onClick={() => setShowRootCreate(true)}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 4v16m8-8H4" />
           </svg>
-          <span>Новая тема</span>
+          <span>Создать</span>
         </button>
       </div>
 
@@ -80,7 +80,7 @@ export function Sidebar({ onCreateNode, isOpen, onClose: _onClose }: SidebarProp
           <div className="user-avatar">
             {user?.email?.[0]?.toUpperCase() || 'U'}
           </div>
-          <span className="user-email">{user?.email || 'User'} <span style={{opacity: 0.4, fontSize: '10px'}}>v1.9</span></span>
+          <span className="user-email">{user?.email || 'User'} <span style={{opacity: 0.4, fontSize: '10px'}}>v2.0</span></span>
         </div>
         <button className="logout-btn" onClick={signOut} title="Выйти">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -90,11 +90,28 @@ export function Sidebar({ onCreateNode, isOpen, onClose: _onClose }: SidebarProp
       </div>
 
       {/* Create child node modal */}
-      {addChildParentId && (
+      {addChildData && (
         <CreateNodeModal
           isOpen={true}
-          onClose={() => setAddChildParentId(null)}
-          parentId={addChildParentId}
+          onClose={() => {
+            setAddChildData(null);
+            onClose?.();
+          }}
+          parentId={addChildData.parentId}
+          parentType={addChildData.parentType}
+        />
+      )}
+
+      {/* Create root node modal (theme or topic) */}
+      {showRootCreate && (
+        <CreateNodeModal
+          isOpen={true}
+          onClose={() => {
+            setShowRootCreate(false);
+            onClose?.();
+          }}
+          parentId={null}
+          parentType="root"
         />
       )}
     </aside>

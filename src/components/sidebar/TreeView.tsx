@@ -4,7 +4,7 @@ import { TreeRow } from './TreeRow';
 
 interface TreeViewProps {
   searchQuery?: string;
-  onAddChild?: (parentId: string) => void;
+  onAddChild?: (parentId: string, parentType: string) => void;
 }
 
 export function TreeView({ searchQuery = '', onAddChild }: TreeViewProps) {

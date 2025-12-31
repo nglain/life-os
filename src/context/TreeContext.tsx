@@ -245,12 +245,12 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
 
       console.log('Flat nodes from API:', flatNodes);
 
-      // If tree is empty, create default "Общая тема"
+      // If tree is empty, create default "Общая тема" as a topic (leaf node for general chat)
       if (flatNodes.length === 0) {
         const now = new Date().toISOString();
         const defaultTheme = {
-          id: 'default-theme',
-          type: 'theme' as const,
+          id: 'default-topic',
+          type: 'topic' as const,
           label: 'Общая тема',
           icon: '💬',
           parentId: null,
@@ -292,7 +292,7 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
       }
 
       const defaultNode = treeData.length > 0
-        ? (findNodeById(treeData, 'default-theme') || treeData[0])
+        ? (findNodeById(treeData, 'default-topic') || treeData[0])
         : null;
 
       if (lastNode) {
@@ -307,12 +307,15 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
 
   // Select node
   const selectNode = useCallback((nodeId: string | null) => {
-    dispatch({ type: 'SELECT_NODE', payload: nodeId });
-    if (nodeId) {
-      socketEmit.selectNode(nodeId);
-      // Save last active node
-      localStorage.setItem('lifeos-last-node', nodeId);
-    }
+    // Force re-render even if same node - reset first, then set
+    dispatch({ type: 'SELECT_NODE', payload: null });
+    setTimeout(() => {
+      dispatch({ type: 'SELECT_NODE', payload: nodeId });
+      if (nodeId) {
+        socketEmit.selectNode(nodeId);
+        localStorage.setItem('lifeos-last-node', nodeId);
+      }
+    }, 0);
   }, []);
 
   // Toggle expand
@@ -323,13 +326,31 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
   // Create node
   const createNode = useCallback(async (node: Partial<TreeNode>) => {
     const result = await api.createNode(node);
-    if (result.success && result.data) {
+    if (result.success) {
+      // Use returned node or construct from input
+      const newNode: TreeNode = result.data?.node || {
+        id: node.id!,
+        label: node.label || '',
+        icon: node.icon || '',
+        type: node.type || 'topic',
+        parentId: node.parentId || null,
+        dateCreated: node.dateCreated || new Date().toISOString(),
+        dateModified: node.dateModified || new Date().toISOString(),
+        children: [],
+        messages: [],
+      };
+
       dispatch({
         type: 'ADD_NODE',
-        payload: { parentId: node.parentId || null, node: result.data.node },
+        payload: { parentId: node.parentId || null, node: newNode },
       });
+
+      // Expand parent to show new child
+      if (node.parentId) {
+        dispatch({ type: 'SET_EXPANDED', payload: { ...state.expanded, [node.parentId]: true } });
+      }
     }
-  }, []);
+  }, [state.expanded]);
 
   // Update node
   const updateNode = useCallback(async (nodeId: string, updates: Partial<TreeNode>) => {

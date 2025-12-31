@@ -6,7 +6,7 @@ import { formatRelativeDate } from '@/utils/date';
 interface TreeRowProps {
   node: TreeNode;
   level: number;
-  onAddChild?: (parentId: string) => void;
+  onAddChild?: (parentId: string, parentType: string) => void;
 }
 
 export function TreeRow({ node, level, onAddChild }: TreeRowProps) {
@@ -18,8 +18,6 @@ export function TreeRow({ node, level, onAddChild }: TreeRowProps) {
   const hasChildren = node.type !== 'topic' && node.children && node.children.length > 0;
 
   const handleClick = () => {
-    // Если уже выбрана - не перевыбираем
-    if (isSelected) return;
     selectNode(node.id);
   };
 
@@ -38,11 +36,22 @@ export function TreeRow({ node, level, onAddChild }: TreeRowProps) {
     }
   };
 
+  // Get default icon by type
+  const getIcon = () => {
+    if (node.icon) return node.icon;
+    switch (node.type) {
+      case 'theme': return '💡';
+      case 'subtopic': return '📂';
+      case 'topic': return '📝';
+      default: return '📄';
+    }
+  };
+
   return (
     <>
       <div
         className={`tree-row ${getTypeClass()} ${isSelected ? 'tree-row--selected' : ''}`}
-        style={{ paddingLeft: `${12 + level * 16}px` }}
+        style={{ paddingLeft: 12, marginLeft: `${level * 20}px` }}
         onClick={handleClick}
       >
         {/* Expand/collapse toggle */}
@@ -57,7 +66,7 @@ export function TreeRow({ node, level, onAddChild }: TreeRowProps) {
         )}
 
         {/* Icon */}
-        <span className="tree-icon">{node.icon}</span>
+        <span className="tree-icon">{getIcon()}</span>
 
         {/* Label */}
         <span className="tree-label">{node.label}</span>
@@ -67,14 +76,14 @@ export function TreeRow({ node, level, onAddChild }: TreeRowProps) {
           <span className="tree-date">{formatRelativeDate(node.dateModified)}</span>
         )}
 
-        {/* Actions - show + button on hover for themes and subtopics */}
-        {(node.type === 'theme' || node.type === 'subtopic') && onAddChild && (
+        {/* Actions - show + button for themes and subtopics (topics and "Общая тема" are leaf nodes) */}
+        {(node.type === 'theme' || node.type === 'subtopic') && node.id !== 'default-theme' && onAddChild && (
           <div className="tree-actions">
             <button
               className="tree-action-btn"
               onClick={(e) => {
                 e.stopPropagation();
-                onAddChild(node.id);
+                onAddChild(node.id, node.type || 'theme');
               }}
               title="Добавить"
             >

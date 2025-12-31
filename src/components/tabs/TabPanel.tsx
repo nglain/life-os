@@ -6,11 +6,10 @@ interface TabPanelProps {
   node: TreeNode;
   activePanel: TabId;
   onSelectNode: (nodeId: string) => void;
-  onCreateTopic: () => void;
-  onCreateSubtopic: () => void;
+  onCreateChild: () => void;
 }
 
-export function TabPanel({ node, activePanel, onSelectNode, onCreateTopic, onCreateSubtopic }: TabPanelProps) {
+export function TabPanel({ node, activePanel, onSelectNode, onCreateChild }: TabPanelProps) {
   if (!activePanel) return null;
 
   // Collect data
@@ -62,8 +61,8 @@ export function TabPanel({ node, activePanel, onSelectNode, onCreateTopic, onCre
         {activePanel === 'subtopics' && (
           <>
             {node.type === 'theme' && (
-              <div className="tab-panel-item add" onClick={onCreateSubtopic}>
-                + Подтема
+              <div className="tab-panel-item add" onClick={onCreateChild}>
+                + Добавить
               </div>
             )}
             {subtopics.map(child => (
@@ -86,8 +85,8 @@ export function TabPanel({ node, activePanel, onSelectNode, onCreateTopic, onCre
         {activePanel === 'topics' && (
           <>
             {node.type !== 'topic' && (
-              <div className="tab-panel-item add" onClick={onCreateTopic}>
-                + Топик
+              <div className="tab-panel-item add" onClick={onCreateChild}>
+                + Добавить
               </div>
             )}
             {topics.sort((a, b) => sortByDate(

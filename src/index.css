@@ -268,11 +268,22 @@ body {
 }
 
 .tree-actions {
-  display: none;
+  display: flex;
+  opacity: 0.4;
 }
 
-/* Only show actions on hover for devices with mouse/trackpad */
+/* On touch devices, always show actions */
+@media (hover: none) or (pointer: coarse) {
+  .tree-actions {
+    opacity: 0.6;
+  }
+}
+
+/* On desktop, show on hover */
 @media (hover: hover) and (pointer: fine) {
+  .tree-actions {
+    display: none;
+  }
   .tree-row:hover .tree-actions {
     display: flex;
   }
@@ -427,6 +438,31 @@ body {
   background: #0c0c0f;
 }
 
+.main-header.compact {
+  padding: 6px 12px;
+  gap: 8px;
+}
+
+.main-header.compact .main-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.main-header.compact .main-header-icon {
+  font-size: 16px;
+}
+
+.main-header.compact .main-header-label {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .main-header-icon {
   font-size: 24px;
 }
@@ -442,13 +478,6 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.main-header-type {
-  font-size: 11px;
-  color: rgba(255,255,255,0.4);
-  text-transform: capitalize;
-  margin-top: 2px;
 }
 
 /* Tabs */
@@ -984,6 +1013,35 @@ body {
   border-color: rgba(255,255,255,0.2);
 }
 
+/* Type selector */
+.type-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.type-option {
+  flex: 1;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.type-option:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.type-option--selected {
+  background: rgba(0,245,255,0.15);
+  border-color: rgba(0,245,255,0.4);
+  color: #00f5ff;
+}
+
 .icon-picker {
   position: absolute;
   top: 56px;
@@ -1513,6 +1571,36 @@ body {
 }
 
 /* ===================== SETTINGS BUTTON ===================== */
+.main-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.header-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-action-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.9);
+}
+
+.header-action-btn:active {
+  background: rgba(255,255,255,0.15);
+}
+
 .settings-btn {
   width: 28px;
   height: 28px;
@@ -1809,40 +1897,55 @@ body {
     padding-bottom: calc(12px + var(--safe-area-bottom));
   }
 
-  /* Modals - full screen on mobile */
+  /* Modals - bottom sheet on mobile */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
   .modal {
     width: 100%;
     max-width: 100%;
-    height: 100%;
-    max-height: 100%;
-    border-radius: 0;
+    max-height: 70vh;
+    border-radius: 16px 16px 0 0;
     margin: 0;
+    padding-bottom: var(--safe-area-bottom);
   }
 
   .modal-header {
-    padding: 16px;
-    padding-top: calc(16px + var(--safe-area-top));
+    padding: 12px 14px;
+  }
+
+  .modal-title {
+    font-size: 15px;
   }
 
   .modal-content {
-    padding: 16px;
+    padding: 14px;
+    gap: 12px;
   }
 
   .modal-footer {
-    padding: 16px;
-    padding-bottom: calc(16px + var(--safe-area-bottom));
+    padding: 12px 14px;
   }
 
   .modal-input {
-    padding: 14px 16px;
+    padding: 10px 12px;
     font-size: 16px;
-    min-height: 50px;
+    min-height: 44px;
   }
 
   .modal-btn {
-    padding: 14px 20px;
-    font-size: 16px;
-    min-height: 50px;
+    padding: 10px 16px;
+    font-size: 14px;
+    min-height: 42px;
+  }
+
+  .icon-current {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
   }
 
   /* Icon picker */
@@ -1851,15 +1954,9 @@ body {
   }
 
   .icon-option {
-    width: 48px;
-    height: 48px;
-    font-size: 22px;
-  }
-
-  .icon-current {
-    width: 48px;
-    height: 48px;
-    font-size: 22px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
   }
 
   /* Login page */
@@ -1948,6 +2045,111 @@ body {
   .sidebar {
     width: 60%;
     max-width: 280px;
+  }
+}
+
+/* ===================== UNIFIED APP HEADER ===================== */
+/* Desktop: hidden */
+.app-header {
+  display: none;
+}
+
+/* Mobile: fixed header at top */
+@media (max-width: 768px) {
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    padding-top: calc(8px + var(--safe-area-top));
+    background: #0c0c0f;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: calc(48px + var(--safe-area-top));
+  }
+
+  .header-logo-btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+
+  .header-logo-btn:active {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .header-node-info {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 60%;
+    overflow: hidden;
+  }
+
+  .header-node-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .header-node-label {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .header-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    border: none;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .header-action-btn:active {
+    background: rgba(255,255,255,0.15);
+    transform: scale(0.95);
+  }
+
+  /* Hide old mobile-header since we use app-header now */
+  .mobile-header {
+    display: none !important;
+  }
+
+  /* Adjust main-area top margin for new header */
+  .main-area {
+    margin-top: calc(48px + var(--safe-area-top));
   }
 }
 
