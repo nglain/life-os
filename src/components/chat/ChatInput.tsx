@@ -21,12 +21,7 @@ export function ChatInput({
 }: ChatInputProps) {
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileClick = () => {
-    console.log('[File] Button clicked, triggering file input');
-    fileInputRef.current?.click();
-  };
+  const fileInputId = useRef(`file-input-${Date.now()}`).current;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log('[File] File selected:', e.target.files);
@@ -40,9 +35,7 @@ export function ChatInput({
       }
     }
     // Reset input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    e.target.value = '';
   };
 
   // Auto-resize textarea
@@ -72,21 +65,19 @@ export function ChatInput({
   return (
     <div className="chat-input-container">
       <div className="chat-input-wrapper">
-        {/* Hidden file input */}
+        {/* File input with label (works on iOS) */}
         <input
-          ref={fileInputRef}
+          id={fileInputId}
           type="file"
           onChange={handleFileChange}
-          style={{ display: 'none' }}
+          className="file-input-hidden"
           accept="image/*,.pdf,.doc,.docx,.txt"
         />
-
-        {/* Attachment button */}
-        <button type="button" className="chat-input-btn" onClick={handleFileClick} title="Прикрепить файл">
+        <label htmlFor={fileInputId} className="chat-input-btn" title="Прикрепить файл">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
           </svg>
-        </button>
+        </label>
 
         {/* Input area */}
         <textarea

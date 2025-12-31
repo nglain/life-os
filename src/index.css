@@ -711,6 +711,19 @@ body {
   color: rgba(255,255,255,0.3);
 }
 
+/* Hidden file input (for iOS compatibility) */
+.file-input-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .chat-input-btn {
   width: 34px;
   height: 34px;
@@ -726,9 +739,20 @@ body {
   transition: all 0.15s;
 }
 
-.chat-input-btn:hover {
+.chat-input-btn:hover,
+label.chat-input-btn:hover {
   background: rgba(255,255,255,0.05);
   color: rgba(255,255,255,0.8);
+}
+
+/* Label styled as button for file input */
+label.chat-input-btn {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.file-input-hidden:focus + label.chat-input-btn {
+  outline: 2px solid rgba(99, 102, 241, 0.5);
+  outline-offset: 2px;
 }
 
 /* Voice active state */
