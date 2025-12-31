@@ -285,7 +285,15 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
       // Auto-select: last active or "Общая тема"
       const lastNodeId = localStorage.getItem('lifeos-last-node');
       const lastNode = lastNodeId ? findNodeById(treeData, lastNodeId) : null;
-      const defaultNode = findNodeById(treeData, 'default-theme') || treeData[0];
+
+      // If last node not found, clear localStorage and find default
+      if (lastNodeId && !lastNode) {
+        localStorage.removeItem('lifeos-last-node');
+      }
+
+      const defaultNode = treeData.length > 0
+        ? (findNodeById(treeData, 'default-theme') || treeData[0])
+        : null;
 
       if (lastNode) {
         dispatch({ type: 'SELECT_NODE', payload: lastNode.id });
